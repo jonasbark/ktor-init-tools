@@ -208,11 +208,20 @@ object SwaggerGeneratorRaw : SwaggerGeneratorBase() {
                                                 +"this.url" {
                                                     +"this.parameters.apply" {
                                                         for (param in method.parametersQuery) {
-                                                            if (param.schema.toKotlinType().contains("List")) {
-                                                                +"${param.name}?.let { this.append(${param.name.quote()}, it.joinToString(\",\")) }"
+                                                            val nullable = if (param.required) "" else "?"
+                                                            val appendText = if (param.schema.toKotlinType().contains("List")) {
+                                                                val appendValue = if (param.required) param.name else "it"
+                                                                "this.append(${param.name.quote()}, $appendValue.joinToString(\",\"))"
+                                                            } else {
+                                                                val appendValue = if (param.required)
+                                                                    (if (param.schema.toKotlinType() == "String") param.name else "\"\$${param.name}\"") else (if (param.schema.toKotlinType() == "String") "it" else "\"\$it\"")
+                                                                "this.append(${param.name.quote()}, $appendValue)"
                                                             }
-                                                            else {
-                                                                +"${param.name}?.let { this.append(${param.name.quote()}, \"\$it\") }"
+
+                                                            if (param.required) {
+                                                                +appendText
+                                                            } else {
+                                                                +"${param.name}$nullable.let { $appendText }"
                                                             }
                                                         }
                                                     }
