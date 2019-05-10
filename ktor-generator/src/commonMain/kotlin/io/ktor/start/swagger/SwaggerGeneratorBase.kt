@@ -68,8 +68,7 @@ open class SwaggerGeneratorBase {
                     for ((index, prop) in props.withIndex()) {
                         val comma = if (index >= props.size - 1) "" else ","
                         val questionmark = if (prop.required) "" else "? = null"
-                        val optional = if (prop.required) "" else "@Optional "
-                        +"${optional}val ${prop.name}: ${prop.type.toKotlinType()}$questionmark$comma"
+                        +"val ${prop.name}: ${prop.type.toKotlinType()}$questionmark$comma"
                     }
                 }
                     +") {"
