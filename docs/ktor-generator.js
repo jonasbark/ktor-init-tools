@@ -84,6 +84,7 @@
   var distinct = Kotlin.kotlin.sequences.distinct_veqyi0$;
   var sorted = Kotlin.kotlin.sequences.sorted_gtzq52$;
   var contains_0 = Kotlin.kotlin.text.contains_li3zpu$;
+  var last = Kotlin.kotlin.collections.last_2p1efm$;
   var PrimitiveClasses$stringClass = Kotlin.kotlin.reflect.js.internal.PrimitiveClasses.stringClass;
   var getKClass = Kotlin.getKClass;
   var kotlin = Kotlin.kotlin;
@@ -107,7 +108,6 @@
   var toList_0 = Kotlin.kotlin.collections.toList_7wnvza$;
   var Iterable = Kotlin.kotlin.collections.Iterable;
   var dropLast = Kotlin.kotlin.collections.dropLast_yzln2o$;
-  var last = Kotlin.kotlin.collections.last_2p1efm$;
   var MutableMap = Kotlin.kotlin.collections.MutableMap;
   var toIntOrNull_0 = Kotlin.kotlin.text.toIntOrNull_6ic1pp$;
   var numberToLong = Kotlin.numberToLong;
@@ -12555,8 +12555,7 @@
           var prop = tmp$_2.next();
           var comma = index >= (props.size - 1 | 0) ? '' : ',';
           var questionmark = prop.required ? '' : '? = null';
-          var optional = prop.required ? '' : '@Optional ';
-          $receiver.line_61zpoe$(optional + 'val ' + prop.name + ': ' + toKotlinType(prop.type) + questionmark + comma);
+          $receiver.line_61zpoe$('val ' + prop.name + ': ' + toKotlinType(prop.type) + questionmark + comma);
         }
       }
       finally {
@@ -14135,15 +14134,25 @@
                 $receiver.line_61zpoe$($receiver_4.length === 0 ? '{' + rafter_2 : $receiver_4 + ' {' + rafter_2);
                 $receiver._indent();
                 try {
-                  var tmp$_4;
+                  var tmp$_4, tmp$_5;
                   tmp$_4 = closure$method_1.parametersQuery.iterator();
                   while (tmp$_4.hasNext()) {
                     var param_0 = tmp$_4.next();
+                    var nullable = param_0.required ? '' : '?';
                     if (contains_0(toKotlinType(param_0.schema), 'List')) {
-                      $receiver.line_61zpoe$(param_0.name + '?.let { this.append(' + quote(param_0.name) + ', it.joinToString(' + '"' + ',' + '"' + ')) }');
+                      var appendValue = param_0.required ? param_0.name : 'it';
+                      tmp$_5 = 'this.append(' + quote(param_0.name) + ', ' + appendValue + '.joinToString(' + '"' + ',' + '"' + '))';
                     }
                      else {
-                      $receiver.line_61zpoe$(param_0.name + '?.let { this.append(' + quote(param_0.name) + ', ' + '"' + '$' + 'it' + '"' + ') }');
+                      var appendValue_0 = param_0.required ? equals(toKotlinType(param_0.schema), 'String') ? param_0.name : '"' + '$' + param_0.name + '"' : equals(toKotlinType(param_0.schema), 'String') ? 'it' : '"$it"';
+                      tmp$_5 = 'this.append(' + quote(param_0.name) + ', ' + appendValue_0 + ')';
+                    }
+                    var appendText = tmp$_5;
+                    if (param_0.required) {
+                      $receiver.line_61zpoe$(appendText);
+                    }
+                     else {
+                      $receiver.line_61zpoe$(param_0.name + nullable + '.let { ' + appendText + ' }');
                     }
                   }
                 }
@@ -14190,6 +14199,153 @@
           $receiver._unindent();
         }
         $receiver.line_61zpoe$('})');
+      }
+      finally {
+        $receiver._unindent();
+      }
+      $receiver.line_61zpoe$('}' + '');
+      unaryPlus_0($receiver);
+      return Unit;
+    };
+  }
+  var checkIndexOverflow = Kotlin.kotlin.collections.checkIndexOverflow_za3lpa$;
+  function SwaggerGeneratorRaw$fileSwaggerFrontendHandler$lambda$lambda$lambda$lambda_0(closure$method, this$SwaggerGeneratorRaw, closure$resultType, closure$responseType, closure$isListType) {
+    return function ($receiver) {
+      var tmp$ = this$SwaggerGeneratorRaw;
+      var tmp$_0 = closure$method.summaryDescription;
+      var $receiver_0 = closure$method.parameters;
+      var capacity = coerceAtLeast(mapCapacity(collectionSizeOrDefault($receiver_0, 10)), 16);
+      var destination = LinkedHashMap_init_0(capacity);
+      var tmp$_1;
+      tmp$_1 = $receiver_0.iterator();
+      while (tmp$_1.hasNext()) {
+        var element = tmp$_1.next();
+        var pair = to(element.name, element.description);
+        destination.put_xwzc9p$(pair.first, pair.second);
+      }
+      tmp$.doc_lz4qb0$($receiver, '', tmp$_0, destination, closure$method.defaultResponse.description);
+      $receiver.line_61zpoe$('suspend fun ' + closure$method.methodName + '(');
+      $receiver._indent();
+      try {
+        var closure$method_0 = closure$method;
+        var tmp$_2, tmp$_0_0;
+        var index = 0;
+        tmp$_2 = closure$method_0.parameters.iterator();
+        while (tmp$_2.hasNext()) {
+          var item = tmp$_2.next();
+          checkIndexOverflow((tmp$_0_0 = index, index = tmp$_0_0 + 1 | 0, tmp$_0_0));
+          var tmp$_3;
+          var default_0 = item.required ? '' : '? = null';
+          $receiver.line_61zpoe$(item.name + ': ' + toKotlinType(item.schema) + default_0 + (((tmp$_3 = last(closure$method_0.parameters)) != null ? tmp$_3.equals(item) : null) ? '' : ',') + ' // ' + item.inside);
+        }
+      }
+      finally {
+        $receiver._unindent();
+      }
+      var $receiver_1 = '): ' + closure$resultType;
+      var rafter = ''.length === 0 ? '' : ' ' + '';
+      $receiver.line_61zpoe$($receiver_1.length === 0 ? '{' + rafter : $receiver_1 + ' {' + rafter);
+      $receiver._indent();
+      try {
+        var closure$method_1 = closure$method;
+        var closure$responseType_0 = closure$responseType;
+        var closure$isListType_0 = closure$isListType;
+        var this$SwaggerGeneratorRaw_0 = this$SwaggerGeneratorRaw;
+        var $receiver_2 = closure$method_1.path;
+        var regex = Regex_init('\\{(\\w+)\\}');
+        var replace_20wsma$result;
+        replace_20wsma$break: do {
+          var match = regex.find_905azu$($receiver_2);
+          if (match == null) {
+            replace_20wsma$result = $receiver_2.toString();
+            break replace_20wsma$break;
+          }
+          var lastStart = 0;
+          var length = $receiver_2.length;
+          var sb = StringBuilder_init_0(length);
+          do {
+            var foundMatch = ensureNotNull(match);
+            sb.append_ezbsdh$($receiver_2, lastStart, foundMatch.range.start);
+            sb.append_gw00v9$('$' + foundMatch.groupValues.get_za3lpa$(1));
+            lastStart = foundMatch.range.endInclusive + 1 | 0;
+            match = foundMatch.next();
+          }
+           while (lastStart < length && match != null);
+          if (lastStart < length) {
+            sb.append_ezbsdh$($receiver_2, lastStart, length);
+          }
+          replace_20wsma$result = sb.toString();
+        }
+         while (false);
+        var replacedPath = replace_20wsma$result;
+        var $receiver_3 = 'val result = client.' + closure$method_1.method + '<' + closure$responseType_0.v + '>(' + '"' + '$' + 'endpoint' + replacedPath + '"' + ')';
+        var rafter_0 = ''.length === 0 ? '' : ' ' + '';
+        $receiver.line_61zpoe$($receiver_3.length === 0 ? '{' + rafter_0 : $receiver_3 + ' {' + rafter_0);
+        $receiver._indent();
+        try {
+          if (!closure$method_1.parametersQuery.isEmpty()) {
+            var $receiver_4 = 'this.url';
+            var rafter_1 = ''.length === 0 ? '' : ' ' + '';
+            $receiver.line_61zpoe$($receiver_4.length === 0 ? '{' + rafter_1 : $receiver_4 + ' {' + rafter_1);
+            $receiver._indent();
+            try {
+              var $receiver_5 = 'this.parameters.apply';
+              var rafter_2 = ''.length === 0 ? '' : ' ' + '';
+              $receiver.line_61zpoe$($receiver_5.length === 0 ? '{' + rafter_2 : $receiver_5 + ' {' + rafter_2);
+              $receiver._indent();
+              try {
+                var tmp$_4, tmp$_5;
+                tmp$_4 = closure$method_1.parametersQuery.iterator();
+                while (tmp$_4.hasNext()) {
+                  var param = tmp$_4.next();
+                  var nullable = param.required ? '' : '?';
+                  if (contains_0(toKotlinType(param.schema), 'List')) {
+                    var appendValue = param.required ? param.name : 'it';
+                    tmp$_5 = 'this.append(' + quote(param.name) + ', ' + appendValue + '.joinToString(' + '"' + ',' + '"' + '))';
+                  }
+                   else {
+                    var appendValue_0 = param.required ? equals(toKotlinType(param.schema), 'String') ? param.name : '"' + '$' + param.name + '"' : equals(toKotlinType(param.schema), 'String') ? 'it' : '"$it"';
+                    tmp$_5 = 'this.append(' + quote(param.name) + ', ' + appendValue_0 + ')';
+                  }
+                  var appendText = tmp$_5;
+                  if (param.required) {
+                    $receiver.line_61zpoe$(appendText);
+                  }
+                   else {
+                    $receiver.line_61zpoe$(param.name + nullable + '.let { ' + appendText + ' }');
+                  }
+                }
+              }
+              finally {
+                $receiver._unindent();
+              }
+              $receiver.line_61zpoe$('}' + '');
+              unaryPlus_0($receiver);
+            }
+            finally {
+              $receiver._unindent();
+            }
+            $receiver.line_61zpoe$('}' + '');
+            unaryPlus_0($receiver);
+          }
+          if (!closure$method_1.parametersBody.isEmpty()) {
+            $receiver.line_61zpoe$('this.body = serializerKotlin.write(' + closure$method_1.parametersBody.get_za3lpa$(0).name + ')');
+          }
+        }
+        finally {
+          $receiver._unindent();
+        }
+        $receiver.line_61zpoe$('}' + '');
+        unaryPlus_0($receiver);
+        if (closure$isListType_0) {
+          $receiver.line_61zpoe$('val listResult = json.parse(' + this$SwaggerGeneratorRaw_0.getListType_0(toKotlinType_0(closure$method_1.responseType)) + '.serializer().list, result)');
+        }
+        if (closure$isListType_0) {
+          $receiver.line_61zpoe$('return listResult');
+        }
+         else {
+          $receiver.line_61zpoe$('return result');
+        }
       }
       finally {
         $receiver._unindent();
@@ -14304,6 +14460,7 @@
               responseType.v = 'String';
             }
             SEPARATOR($receiver, SwaggerGeneratorRaw$fileSwaggerFrontendHandler$lambda$lambda$lambda$lambda(method, this$SwaggerGeneratorRaw_0, resultType, responseType, isListType));
+            SEPARATOR($receiver, SwaggerGeneratorRaw$fileSwaggerFrontendHandler$lambda$lambda$lambda$lambda_0(method, this$SwaggerGeneratorRaw_0, resultType, responseType, isListType));
           }
         }
       }

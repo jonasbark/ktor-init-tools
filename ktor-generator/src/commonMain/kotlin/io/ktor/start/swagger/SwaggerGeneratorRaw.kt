@@ -209,14 +209,16 @@ object SwaggerGeneratorRaw : SwaggerGeneratorBase() {
                                                     +"this.parameters.apply" {
                                                         for (param in method.parametersQuery) {
                                                             val nullable = if (param.required) "" else "?"
-                                                            val appendText = if (param.schema.toKotlinType().contains("List")) {
-                                                                val appendValue = if (param.required) param.name else "it"
-                                                                "this.append(${param.name.quote()}, $appendValue.joinToString(\",\"))"
-                                                            } else {
-                                                                val appendValue = if (param.required)
-                                                                    (if (param.schema.toKotlinType() == "String") param.name else "\"\$${param.name}\"") else (if (param.schema.toKotlinType() == "String") "it" else "\"\$it\"")
-                                                                "this.append(${param.name.quote()}, $appendValue)"
-                                                            }
+                                                            val appendText =
+                                                                if (param.schema.toKotlinType().contains("List")) {
+                                                                    val appendValue =
+                                                                        if (param.required) param.name else "it"
+                                                                    "this.append(${param.name.quote()}, $appendValue.joinToString(\",\"))"
+                                                                } else {
+                                                                    val appendValue = if (param.required)
+                                                                        (if (param.schema.toKotlinType() == "String") param.name else "\"\$${param.name}\"") else (if (param.schema.toKotlinType() == "String") "it" else "\"\$it\"")
+                                                                    "this.append(${param.name.quote()}, $appendValue)"
+                                                                }
 
                                                             if (param.required) {
                                                                 +appendText
@@ -245,6 +247,65 @@ object SwaggerGeneratorRaw : SwaggerGeneratorBase() {
                                         +"}"
                                     }
                                     +"})"
+                                }
+                            }
+
+                            SEPARATOR {
+                                doc(
+                                    title = "",
+                                    description = method.summaryDescription,
+                                    params = method.parameters.associate { it.name to it.description },
+                                    retval = method.defaultResponse.description
+                                )
+                                +"suspend fun ${method.methodName}("
+                                indent {
+                                    method.parameters.forEachIndexed { index, param ->
+                                        val default = if (param.required) "" else "? = null"
+                                        +"${param.name}: ${param.schema.toKotlinType()}$default${if (method.parameters.last() == param) "" else ","} // ${param.inside}"
+                                    }
+                                }
+                                +"): $resultType" {
+                                    val replacedPath = method.path.replace(Regex("\\{(\\w+)\\}")) {
+                                        "\$" + it.groupValues[1]
+                                    }
+                                    +"val result = client.${method.method}<$responseType>(\"\$endpoint$replacedPath\")" {
+                                        if (method.parametersQuery.isNotEmpty()) {
+                                            +"this.url" {
+                                                +"this.parameters.apply" {
+                                                    for (param in method.parametersQuery) {
+                                                        val nullable = if (param.required) "" else "?"
+                                                        val appendText =
+                                                            if (param.schema.toKotlinType().contains("List")) {
+                                                                val appendValue =
+                                                                    if (param.required) param.name else "it"
+                                                                "this.append(${param.name.quote()}, $appendValue.joinToString(\",\"))"
+                                                            } else {
+                                                                val appendValue = if (param.required)
+                                                                    (if (param.schema.toKotlinType() == "String") param.name else "\"\$${param.name}\"") else (if (param.schema.toKotlinType() == "String") "it" else "\"\$it\"")
+                                                                "this.append(${param.name.quote()}, $appendValue)"
+                                                            }
+
+                                                        if (param.required) {
+                                                            +appendText
+                                                        } else {
+                                                            +"${param.name}$nullable.let { $appendText }"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (method.parametersBody.isNotEmpty()) {
+                                            +"this.body = serializerKotlin.write(${method.parametersBody[0].name})"
+                                        }
+                                    }
+                                    if (isListType) {
+                                        +"val listResult = json.parse(${getListType(method.responseType.toKotlinType())}.serializer().list, result)"
+                                    }
+                                    if (isListType) {
+                                        +"return listResult"
+                                    } else {
+                                        +"return result"
+                                    }
                                 }
                             }
                         }
